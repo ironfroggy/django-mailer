@@ -56,6 +56,50 @@ class MessageManager(models.Manager):
                 count += 1
         return count
 
+class MessageHeader(models.Model):
+    
+    message = models.ForeignKey(Message)
+    name = models.CharField(max_length=100)
+    value = models.CharField(max_length=200)
+
+    order = models.PositiveIntegerField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            self.order = MessageHeader.objects.filter(message=self.message).order_by('-order')[0].order + 1
+        super(MessageHeader, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = (('message', 'name'),)
+
+class MessageHeaders(object):
+    
+    def __init__(self, for_message):
+        self.message = for_message
+    
+    def __getitem__(self, name):
+        try:
+            return self.message.messageheader_set.get(name=name).value
+        except MessageHeader.DoesNotExist:
+            raise KeyError("No header named '%s'" % (name,))
+
+    def __setitem__(self, name, value):
+        mh = self.message.messageheader_set.get_or_create(name=name)[0]
+        mh.value = value
+        mh.save()
+
+    def __delitem__(self, name):
+        try:
+            self.message.messageheader_set.get(name=name).delete()
+        except MessageHeader.DoesNotExist:
+            pass
+
+class MessageAlternative(models.Model):
+
+    message = models.ForeignKey(Message)
+    content_type = models.CharField(max_length=50)
+    message_body = models.TextField()
+
 
 class Message(models.Model):
     
@@ -69,6 +113,10 @@ class Message(models.Model):
     priority = models.CharField(max_length=1, choices=PRIORITIES, default='2')
     # @@@ campaign?
     # @@@ content_type?
+
+    @property
+    def headers(self):
+        return MessageHeaders(self)
     
     def defer(self):
         self.priority = '4'
@@ -82,6 +130,15 @@ class Message(models.Model):
         else:
             return False
     
+    def attach_alternative(self, alternative_body, alternative_type, overwrite=False):
+        try:
+            self.messagealternative_set.get(content_type=alternative_type)
+        except MessageAlternative.DoesNotExist:
+            pass
+        else:
+            if not overwrite:
+                raise KeyError("Already attached an alternative of type '%s'" % (alternative_type,))
+        MessageAlternative.objects.create(message=self, content_type=alternative_type, message_body=alternative_body)
 
 class DontSendEntryManager(models.Manager):
     
