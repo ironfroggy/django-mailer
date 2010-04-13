@@ -87,9 +87,12 @@ class MessageHeaders(object):
             raise KeyError("No header named '%s'" % (name,))
 
     def __setitem__(self, name, value):
-        mh = self.message.messageheader_set.get_or_create(name=name)[0]
-        mh.value = value
-        mh.save()
+        try:
+            mh = self.message.messageheader_set.get(name=name)
+            mh.value = value
+            mh.save()
+        except MessageHeader.DoesNotExist:
+            MessageHeader.objects.create(name=name, value=value, message=self.message)
 
     def __delitem__(self, name):
         try:
