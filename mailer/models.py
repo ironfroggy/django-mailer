@@ -58,7 +58,7 @@ class MessageManager(models.Manager):
 
 class MessageHeader(models.Model):
     
-    message = models.ForeignKey(Message)
+    message = models.ForeignKey('mailer.Message')
     name = models.CharField(max_length=100)
     value = models.CharField(max_length=200)
 
@@ -96,7 +96,7 @@ class MessageHeaders(object):
 
 class MessageAlternative(models.Model):
 
-    message = models.ForeignKey(Message)
+    message = models.ForeignKey('mailer.Message')
     content_type = models.CharField(max_length=50)
     message_body = models.TextField()
 
