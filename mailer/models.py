@@ -66,7 +66,10 @@ class MessageHeader(models.Model):
 
     def save(self, *args, **kwargs):
         if self.order is None:
-            self.order = MessageHeader.objects.filter(message=self.message).order_by('-order')[0].order + 1
+            try:
+                self.order = MessageHeader.objects.filter(message=self.message).order_by('-order')[0].order + 1
+            except IndexError:
+                self.order = 0
         super(MessageHeader, self).save(*args, **kwargs)
 
     class Meta:
