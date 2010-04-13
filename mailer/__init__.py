@@ -23,7 +23,7 @@ PRIORITY_MAPPING = {
 
 
 def send_mail(subject, message, from_email, recipient_list, priority="medium",
-              fail_silently=False, auth_user=None, auth_password=None):
+              fail_silently=False, auth_user=None, auth_password=None, headers=None):
     from django.utils.encoding import force_unicode
     from mailer.models import Message
     
@@ -37,16 +37,21 @@ def send_mail(subject, message, from_email, recipient_list, priority="medium",
         subject = u"%s..." % subject[:97]
     
     for to_address in recipient_list:
-        Message(to_address=to_address,
-                from_address=from_email,
-                subject=subject,
-                message_body=message,
-                priority=priority).save()
+        message_obj = Message(
+            to_address=to_address,
+            from_address=from_email,
+            subject=subject,
+            message_body=message,
+            priority=priority)
+        if headers:
+            for name, value in headers.items():
+                message_obj.headers[name] = value
+        message_obj.save()
 
 
 def send_html_mail(subject, message, message_html, from_email, recipient_list,
                    priority="medium", fail_silently=False, auth_user=None,
-                   auth_password=None):
+                   auth_password=None, headers=None):
     """
     Function to queue HTML e-mails
     """
@@ -59,15 +64,19 @@ def send_html_mail(subject, message, message_html, from_email, recipient_list,
     subject = force_unicode(subject)
     
     for to_address in recipient_list:
-        Message(to_address=to_address,
+        message_obj = Message(to_address=to_address,
                 from_address=from_email,
                 subject=subject,
                 message_body=message,
                 message_body_html=message_html,
-                priority=priority).save()
+                priority=priority)
+        if headers:
+            for name, value in headers.items():
+                message_obj.headers[name] = value
+        message_obj.save()
 
 
-def mail_admins(subject, message, fail_silently=False, priority="medium"):
+def mail_admins(subject, message, fail_silently=False, priority="medium", headers=None):
     from django.utils.encoding import force_unicode
     from django.conf import settings
     from mailer.models import Message
@@ -81,14 +90,18 @@ def mail_admins(subject, message, fail_silently=False, priority="medium"):
         subject = u"%s..." % subject[:97]
     
     for name, to_address in settings.ADMINS:
-        Message(to_address=to_address,
+        message_obj = Message(to_address=to_address,
                 from_address=settings.SERVER_EMAIL,
                 subject=subject,
                 message_body=message,
-                priority=priority).save()
+                priority=priority)
+        if headers:
+            for name, value in headers.items():
+                message_obj.headers[name] = value
+        message_obj.save()
 
 
-def mail_managers(subject, message, fail_silently=False, priority="medium"):
+def mail_managers(subject, message, fail_silently=False, priority="medium", headers=None):
     from django.utils.encoding import force_unicode
     from django.conf import settings
     from mailer.models import Message
@@ -102,8 +115,12 @@ def mail_managers(subject, message, fail_silently=False, priority="medium"):
         subject = u"%s..." % subject[:97]
     
     for name, to_address in settings.MANAGERS:
-        Message(to_address=to_address,
+        message_obj = Message(to_address=to_address,
                 from_address=settings.SERVER_EMAIL,
                 subject=subject,
                 message_body=message,
-                priority=priority).save()
+                priority=priority)
+        if headers:
+            for name, value in headers.items():
+                message_obj.headers[name] = value
+        message_obj.save()
