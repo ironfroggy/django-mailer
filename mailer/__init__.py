@@ -37,7 +37,7 @@ def send_mail(subject, message, from_email, recipient_list, priority="medium",
         subject = u"%s..." % subject[:97]
     
     for to_address in recipient_list:
-        message_obj = Message(
+        message_obj = Message.objects.create(
             to_address=to_address,
             from_address=from_email,
             subject=subject,
@@ -64,7 +64,7 @@ def send_html_mail(subject, message, message_html, from_email, recipient_list,
     subject = force_unicode(subject)
     
     for to_address in recipient_list:
-        message_obj = Message(to_address=to_address,
+        message_obj = Message.objects.create(to_address=to_address,
                 from_address=from_email,
                 subject=subject,
                 message_body=message,
@@ -90,7 +90,7 @@ def mail_admins(subject, message, fail_silently=False, priority="medium", header
         subject = u"%s..." % subject[:97]
     
     for name, to_address in settings.ADMINS:
-        message_obj = Message(to_address=to_address,
+        message_obj = Message.objects.create(to_address=to_address,
                 from_address=settings.SERVER_EMAIL,
                 subject=subject,
                 message_body=message,
@@ -115,7 +115,7 @@ def mail_managers(subject, message, fail_silently=False, priority="medium", head
         subject = u"%s..." % subject[:97]
     
     for name, to_address in settings.MANAGERS:
-        message_obj = Message(to_address=to_address,
+        message_obj = Message.objects.create(to_address=to_address,
                 from_address=settings.SERVER_EMAIL,
                 subject=subject,
                 message_body=message,
