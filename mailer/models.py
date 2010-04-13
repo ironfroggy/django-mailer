@@ -112,6 +112,7 @@ class Message(models.Model):
     from_address = models.CharField(max_length=50)
     subject = models.CharField(max_length=100)
     message_body = models.TextField()
+    message_body_html = models.TextField(blank=True)
     when_added = models.DateTimeField(default=datetime.now)
     priority = models.CharField(max_length=1, choices=PRIORITIES, default='2')
     # @@@ campaign?
@@ -143,6 +144,7 @@ class Message(models.Model):
                 raise KeyError("Already attached an alternative of type '%s'" % (alternative_type,))
         MessageAlternative.objects.create(message=self, content_type=alternative_type, message_body=alternative_body)
 
+
 class DontSendEntryManager(models.Manager):
     
     def has_address(self, address):
@@ -168,7 +170,7 @@ class DontSendEntry(models.Model):
     class Meta:
         verbose_name = 'don\'t send entry'
         verbose_name_plural = 'don\'t send entries'
-    
+
 
 RESULT_CODES = (
     ('1', 'success'),
@@ -176,7 +178,6 @@ RESULT_CODES = (
     ('3', 'failure'),
     # @@@ other types of failure?
 )
-
 
 
 class MessageLogManager(models.Manager):
@@ -192,6 +193,7 @@ class MessageLogManager(models.Manager):
             from_address = message.from_address,
             subject = message.subject,
             message_body = message.message_body,
+            message_body_html = message.message_body_html,
             when_added = message.when_added,
             priority = message.priority,
             # @@@ other fields from Message
@@ -210,6 +212,7 @@ class MessageLog(models.Model):
     from_address = models.CharField(max_length=50)
     subject = models.CharField(max_length=100)
     message_body = models.TextField()
+    message_body_html = models.TextField(blank=True)
     when_added = models.DateTimeField()
     priority = models.CharField(max_length=1, choices=PRIORITIES)
     # @@@ campaign?
