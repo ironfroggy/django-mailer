@@ -97,6 +97,14 @@ class MessageHeaders(object):
         except MessageHeader.DoesNotExist:
             pass
 
+    def keys(self):
+        return self.message.messageheader_set.values_list('name', flat=True)
+
+    def __iter__(self):
+        return iter(self.keys())
+
+    def items(self):
+        return [ (mh.name, mh.value) for mh in self.message.messageheader_set.all() ]
 
 class Message(models.Model):
     

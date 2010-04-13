@@ -71,7 +71,7 @@ def send_all():
                 try:
                     logging.info("sending message '%s' to %s" % (message.subject.encode("utf-8"), message.to_address.encode("utf-8")))
 
-                    email = EmailMultiAlternatives(message.subject, message.message_body, message.from_address, [message.to_address])
+                    email = EmailMultiAlternatives(message.subject, message.message_body, message.from_address, [message.to_address], headers=dict(message.headers))
                     if message.message_body_html:
                         email.attach_alternative(message.message_body_html, "text/html")
                     email.send()
