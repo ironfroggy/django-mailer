@@ -97,12 +97,6 @@ class MessageHeaders(object):
         except MessageHeader.DoesNotExist:
             pass
 
-class MessageAlternative(models.Model):
-
-    message = models.ForeignKey('mailer.Message')
-    content_type = models.CharField(max_length=50)
-    message_body = models.TextField()
-
 
 class Message(models.Model):
     
@@ -133,17 +127,6 @@ class Message(models.Model):
             return True
         else:
             return False
-    
-    def attach_alternative(self, alternative_body, alternative_type, overwrite=False):
-        try:
-            self.messagealternative_set.get(content_type=alternative_type)
-        except MessageAlternative.DoesNotExist:
-            pass
-        else:
-            if not overwrite:
-                raise KeyError("Already attached an alternative of type '%s'" % (alternative_type,))
-        MessageAlternative.objects.create(message=self, content_type=alternative_type, message_body=alternative_body)
-
 
 class DontSendEntryManager(models.Manager):
     
