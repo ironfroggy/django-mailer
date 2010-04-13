@@ -70,12 +70,12 @@ def send_all():
             else:
                 try:
                     logging.info("sending message '%s' to %s" % (message.subject.encode("utf-8"), message.to_address.encode("utf-8")))
-                    if not message.message_body_html:
-                        core_send_mail(message.subject, message.message_body, message.from_address, [message.to_address])
-                    else:
-                        email = EmailMultiAlternatives(message.subject, message.message_body, message.from_address, [message.to_address])
+
+                    email = EmailMultiAlternatives(message.subject, message.message_body, message.from_address, [message.to_address])
+                    if message.message_body_html:
                         email.attach_alternative(message.message_body_html, "text/html")
-                        email.send()
+                    email.send()
+
                     MessageLog.objects.log(message, 1) # @@@ avoid using literal result code
                     message.delete()
                     sent += 1
