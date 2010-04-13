@@ -7,7 +7,6 @@ from socket import error as socket_error
 from mailer.models import Message, DontSendEntry, MessageLog
 
 from django.conf import settings
-from django.core.mail import send_mail as core_send_mail
 from django.core.mail import EmailMultiAlternatives
 
 # when queue is empty, how long to wait (in seconds) before checking again
